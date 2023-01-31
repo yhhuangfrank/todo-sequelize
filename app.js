@@ -2,6 +2,9 @@ const express = require("express");
 const exphbs = require("express-handlebars");
 const methodOverride = require("method-override");
 const bcrypt = require("bcryptjs");
+const db = require("./models");
+const Todo = db.Todo;
+const User = db.User;
 const app = express();
 const PORT = 3000;
 
@@ -24,11 +27,17 @@ app.post("/users/login", (req, res) => {
 });
 
 app.get("/users/register", (req, res) => {
-  res.render("register");
+  return res.render("register");
 });
 
-app.post("/users/register", (req, res) => {
-  res.send("register");
+app.post("/users/register", async (req, res) => {
+  try {
+    const { name, email, password, confirmPassword } = req.body;
+    await User.create({ name, email, password });
+    return res.redirect("/");
+  } catch (error) {
+    return console.log(error);
+  }
 });
 
 app.get("/users/logout", (req, res) => {
