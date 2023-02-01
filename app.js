@@ -15,7 +15,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 
 app.get("/", (req, res) => {
-  return res.send("hello from express.js");
+  return Todo.findAll({
+    raw: true,
+    nest: true,
+  }) //! 將資料換轉換成單純的JS物件
+    .then((todos) => {
+      return res.render("index", { todos });
+    })
+    .catch((err) => res.status(402).json(err));
 });
 
 app.get("/users/login", (req, res) => {
