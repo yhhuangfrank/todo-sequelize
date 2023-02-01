@@ -22,7 +22,14 @@ app.get("/", (req, res) => {
     .then((todos) => {
       return res.render("index", { todos });
     })
-    .catch((err) => res.status(402).json(err));
+    .catch((error) => res.status(402).json(error));
+});
+
+app.get("/todos/:id", (req, res) => {
+  const id = req.params.id;
+  return Todo.findByPk(id)
+    .then((todo) => res.render("detail", { todo: todo.toJSON() }))
+    .catch((error) => console.log(error));
 });
 
 app.get("/users/login", (req, res) => {
@@ -40,7 +47,18 @@ app.get("/users/register", (req, res) => {
 app.post("/users/register", async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
-    await User.create({ name, email, password });
+    const foundUser = await User.findOne({ where: { email } });
+    if (foundUser) {
+      console.log("User already exists");
+      return res.render("register", {
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
+    }
+    const hash = bcrypt.hashSync(password, 10);
+    await User.create({ name, email, password: hash });
     return res.redirect("/");
   } catch (error) {
     return console.log(error);
