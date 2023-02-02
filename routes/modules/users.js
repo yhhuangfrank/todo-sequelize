@@ -42,7 +42,10 @@ router.post("/register", async (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-  res.send("logout");
+  req.logout((error) => {
+    if (error) return next(error);
+  });
+  return res.redirect("/users/login");
 });
 
 module.exports = router;
