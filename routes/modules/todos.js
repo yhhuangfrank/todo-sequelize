@@ -2,9 +2,20 @@ const router = require("express").Router();
 const db = require("../../models");
 const Todo = db.Todo;
 
+router.get("/new", (req, res) => {
+  return res.render("new");
+});
+
+router.post("/new", async (req, res) => {
+  const UserId = req.user.id;
+  const { name } = req.body;
+  await Todo.create({ name, UserId });
+  return res.redirect("/");
+});
+
 router.get("/:id", async (req, res) => {
   try {
-    const id = req.params.id;
+    const { id } = req.params;
     const todo = await Todo.findByPk(id);
     return res.render("detail", { todo: todo.toJSON() });
   } catch (error) {
@@ -33,5 +44,14 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Todo.destroy({ where: { id } });
+    return res.redirect("/");
+  } catch (error) {
+    return console.log(error);
+  }
+});
 
 module.exports = router;
